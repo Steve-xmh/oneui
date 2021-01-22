@@ -43,7 +43,8 @@ export default {
 			preprocess: sveltePreprocess({
 				scss: {
 					includePaths: ['src/theme'],
-				}
+				},
+				typescript: true
 			}),
 			compilerOptions: {
 				// enable run-time checks when not in production

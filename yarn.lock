@@ -28,6 +28,11 @@
   resolved "https://registry.npm.taobao.org/@mdi/font/download/@mdi/font-5.9.55.tgz#41acd50b88073ded7095fc3029d8712b6e12f38e"
   integrity sha1-QazVC4gHPe1wlfwwKdhxK24S844=
 
+"@mdi/js@^5.9.55":
+  version "5.9.55"
+  resolved "https://registry.npm.taobao.org/@mdi/js/download/@mdi/js-5.9.55.tgz#8f5bc4d924c23f30dab20545ddc768e778bbc882"
+  integrity sha1-j1vE2STCPzDasgVF3cdo53i7yII=
+
 "@polka/url@^1.0.0-next.9":
   version "1.0.0-next.11"
   resolved "https://registry.npm.taobao.org/@polka/url/download/@polka/url-1.0.0-next.11.tgz#aeb16f50649a91af79dbe36574b66d0f9e4d9f71"
