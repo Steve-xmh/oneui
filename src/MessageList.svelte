@@ -14,7 +14,7 @@ import { contact } from "./stores/contact";
     <div class="spacer" />
     {#if hasMessages}
         {#each messages as msg}
-            <MessageBubble className="pt-2" userId={msg.userId} message={msg.rawMessage} />
+            <MessageBubble className="mt-2" userId={msg.userId} messages={msg.messages} />
         {/each}
     {/if}
 </div>

@@ -12,19 +12,21 @@ export class OneBotWS extends EventTarget {
         this.registerEvents()
         this.ws.addEventListener('open', e => {
             this.dispatchEvent(new CustomEvent('ws.open'))
-            this.sendAndEmit('get_login_info', 'getLoginInfo', null)
-            this.sendAndEmit('get_version_info', 'getVersionInfo', null)
-            this.sendAndEmit('get_friend_list', 'getFriendList', null)
-            this.sendAndEmit('get_group_list', 'getGroupList', null)
+            this.sendAndEmit('get_login_info', 'getLoginInfo')
+            this.sendAndEmit('get_version_info', 'getVersionInfo')
+            this.sendAndEmit('get_friend_list', 'getFriendList')
+            this.sendAndEmit('get_group_list', 'getGroupList')
         })
         this.ws.addEventListener('message', e => {
             try {
                 const data: OneBot.ActionResultStruct<any> = JSON.parse(e.data)
                 console.log('[OneBot WS]', data)
-                if (data.echo in this.promises) {
-                    const [resolve, reject] = this.promises[data.echo]
-                    resolve(data)
-                    delete this.promises[data.echo]
+                if (data.echo) {
+                    if (data.echo in this.promises) {
+                        const [resolve, reject] = this.promises[data.echo]
+                        resolve(data)
+                        delete this.promises[data.echo]
+                    }
                 }
                 // Is base message
                 if ('post_type' in data) {

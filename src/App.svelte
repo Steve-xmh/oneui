@@ -37,7 +37,7 @@ import MessageBubble from "./components/message/MessageBubble.svelte";
     let selfId = 0;
     let selfName = '';
     let sendingMessage = false
-    let onebot: OneBotWS = null;
+    let onebot: OneBotWS;
     interface Friend {
         user_id: number;
         nickname: string;
@@ -55,19 +55,33 @@ import MessageBubble from "./components/message/MessageBubble.svelte";
     let groups: Group[] = [];
     let msgList: HTMLDivElement
 
-    function onGetFriendsInfo(e: CustomEvent) {
+    function onGetFriendsInfo(e: CustomEvent<any>) {
         friends = e.detail.data;
     }
 
-    function onGetGroupsInfo(e: CustomEvent) {
+    function onGetGroupsInfo(e: CustomEvent<any>) {
         console.log("get", e.detail);
         groups = e.detail.data;
     }
 
-    function onGetVersionInfo(e: CustomEvent) {
+    function onGetVersionInfo(e: CustomEvent<any>) {
         backendMeta = `Connected ${
             e.detail.data?.app_name || e.detail.data?.name
         } v${e.detail.data?.app_version || e.detail.data?.version}`;
+    }
+
+    function tryScrollToBottom() {
+        if (msgList) {
+            const isScrolledToBottom = msgList.scrollHeight - msgList.clientHeight <= msgList.scrollTop + 1;
+            if (isScrolledToBottom) {
+                requestAnimationFrame(() => {
+                    msgList.scrollTo({
+                        top: msgList.scrollHeight,
+                        behavior: 'smooth'
+                    })
+                })
+            }
+        }
     }
 
     async function sendMessage() {
@@ -85,8 +99,10 @@ import MessageBubble from "./components/message/MessageBubble.svelte";
             }
             try {
                 const rawMsg = (await onebot.send('get_msg', { message_id: msgId })).data
+                tryScrollToBottom()
                 messageDB.addMessage(cid, rawMsg.raw_message, selfId)
             } catch {
+                tryScrollToBottom()
                 messageDB.addMessage(cid, msg, selfId)
             }
             sendingMessage = false
@@ -106,21 +122,13 @@ import MessageBubble from "./components/message/MessageBubble.svelte";
             // const isScrolledToBottom = out.scrollHeight - out.clientHeight <= out.scrollTop + 1;
             onebot.addEventListener("userMessage", (e: CustomEvent) => {
                 const baseMsg = e.detail as MessageMessage;
-                const isScrolledToBottom = msgList.scrollHeight - msgList.clientHeight <= msgList.scrollTop + 1;
+                tryScrollToBottom()
                 if (baseMsg.message_type === MessageType.Private) {
                     const cid = getContactID(baseMsg.user_id, false);
                     messageDB.addMessage(cid, baseMsg.raw_message);
                 } else if (baseMsg.message_type === MessageType.Group) {
                     const cid = getContactID((baseMsg as unknown as GroupMessage).group_id, true);
                     messageDB.addMessage(cid, baseMsg.raw_message, baseMsg.user_id);
-                }
-                if (isScrolledToBottom) {
-                    requestAnimationFrame(() => {
-                        msgList.scrollTo({
-                            top: msgList.scrollHeight,
-                            behavior: 'smooth'
-                        })
-                    })
                 }
             });
         }
@@ -142,7 +150,7 @@ import MessageBubble from "./components/message/MessageBubble.svelte";
         </div>
         <span slot="title">OneUI</span>
     </AppBar>
-    {#if onebot === null}
+    {#if !onebot}
         <Container class="d-flex justify-center" style="height:calc(100%-56px)">
             <Card style="min-width:300px;">
                 <CardTitle>Connect</CardTitle>

@@ -5,6 +5,11 @@ export enum PostType {
     MetaEvent = 'meta_event',
 }
 
+export interface CQMessage {
+    type: string,
+    data: any
+}
+
 export interface BaseMessage {
     time: number
     self_id: number

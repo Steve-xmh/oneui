@@ -1,5 +1,7 @@
 import App from './App.svelte'
-const app = {
+const app: {
+    app: App | null
+} = {
     app: null
 }
 window.addEventListener('load', () => {
