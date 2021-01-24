@@ -1,11 +1,20 @@
 <script lang="ts">
-    import MessageBubble from "./components/message/MessageBubble.svelte";
-import { contact } from "./stores/contact";
-    import { messageDB } from "./stores/messages";
+    import MessageBubble from "../message/MessageBubble.svelte";
+    import { contact } from "../../stores/contact";
+    import { messageDB } from "../../stores/messages";
+    import { onMount } from "svelte";
     export let msgdiv: HTMLDivElement
+    export let autoScroll = true;
     export let className = "";
     $: hasMessages = $contact in $messageDB;
     $: messages = $messageDB[$contact];
+    
+    onMount(async () => {
+        msgdiv.addEventListener('wheel', () => {
+            const isScrolledToBottom = msgdiv.scrollHeight - msgdiv.clientHeight <= msgdiv.scrollTop + 10;
+            autoScroll = isScrolledToBottom
+        })
+    })
 </script>
 
 <!-- <MessageBubble userId={776470918} userName="SteveXMH" message="Hello World!"/> -->

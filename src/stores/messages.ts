@@ -1,4 +1,5 @@
 import { writable } from "svelte/store";
+import { onebot } from "../onebot";
 import type { CQMessage } from "../onebot/messages";
 import { parse } from "../utils/cqcode";
 import { getUserID } from "./contact";
@@ -13,6 +14,21 @@ type MessageDatabase = {
     [key: string]: Message[]
 }
 
+async function resolveReply(cqMsg: CQMessage) {
+    const reply = await onebot.getMessageByID(cqMsg.data.id)
+    console.log('Resolved Reply', cqMsg, reply)
+    if (reply.status === 'ok') {
+        return parse(reply.data.raw_message).map(v => {
+            if (v.type === 'reply') {
+                v.data.detail = resolveReply(v)
+            }
+            return v
+        })
+    } else {
+        return false
+    }
+}
+
 function createMessageDB() {
     const { subscribe, set, update } = writable({} as MessageDatabase)
 
@@ -23,7 +39,12 @@ function createMessageDB() {
                 v[contactId] = []
             }
             const userId = senderId || getUserID(contactId)
-            const cqmsg = parse(raw_message)
+            const cqmsg = parse(raw_message).map(v => {
+                if (v.type === 'reply') {
+                    v.data.detail = resolveReply(v)
+                }
+                return v
+            })
             if (v[contactId].length > 0) {
                 const lastMsg = v[contactId][v[contactId].length - 1]
                 if (lastMsg.userId === userId) {
@@ -43,7 +64,7 @@ function createMessageDB() {
                     userId
                 })
             }
-            console.log('Add Message', contactId, raw_message)
+            console.log('[MessageDB]', 'Added', contactId, raw_message)
             return v
         }),
         reset: () => set({})

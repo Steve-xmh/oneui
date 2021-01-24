@@ -1,13 +1,18 @@
 import genUid from "../utils/uid";
-import { BaseMessage, MessageMessage, PostType, SubMessageType } from "./messages";
+import { BaseMessage, CQMessage, MessageMessage, PostType, SubMessageType } from "./messages";
 import type { OneBot } from "./types";
 
 export class OneBotWS extends EventTarget {
-    ws: WebSocket
+    ws: WebSocket | null
     promises: {[key: string]: [Function, Function]} = {}
-    constructor (host: string) {
+    constructor () {
         super()
+        this.ws = null
         // Authorization
+    }
+
+    connect(host: string) {
+        if (this.ws) this.ws.close()
         this.ws = new WebSocket(host)
         this.registerEvents()
         this.ws.addEventListener('open', e => {
@@ -80,7 +85,7 @@ export class OneBotWS extends EventTarget {
                 params: data || [],
                 echo: uid
             }
-            console.log('OneBot WS', 'Send', msg)
+            console.log('[OneBot WS]', 'Send', msg)
             this.ws.send(JSON.stringify(msg))
         })
     }
@@ -103,7 +108,15 @@ export class OneBotWS extends EventTarget {
         return v.data.message_id as string;
     }
 
+    async getMessageByID(messageId: string) {
+        return this.send('get_msg', {
+            message_id: messageId
+        })
+    }
+
     private registerEvents() {
 
     }
 }
+
+export const onebot = new OneBotWS()

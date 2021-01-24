@@ -1,15 +1,49 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <title>OneUI</title>
-        <link href="build/bundle.css" rel="stylesheet" />
-        <script src="build/bundle.js"></script>
-        <style>
-            .s-app {
-                height: 100%;
-            }
-        </style>
-    </head>
-    <body>
-    </body>
+
+<head>
+    <title>OneUI</title>
+    <link href="build/bundle.css" rel="stylesheet" />
+    <script src="build/bundle.js" defer></script>
+    <style>
+        .primary-text {
+            color: #64b5f6 !important;
+            caret-color: #64b5f6 !important;
+        }
+        body {
+            height: 100%;
+            overflow: hidden;
+            max-width: 100%;
+        }
+        .s-app {
+            height: 100%;
+        }
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #888;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="s-app theme--dark d-flex justify-center align-center">
+        <div class="d-flex flex-column justify-center text-center">
+            <svg width="128" height="128" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path fill-rule="evenodd" clip-rule="evenodd"
+                    d="M0 1C0 0.447715 0.447715 0 1 0H10C10.5523 0 11 0.447715 11 1C11 1.55228 10.5523 2 10 2H2V22H10C10.5523 22 11 22.4477 11 23C11 23.5523 10.5523 24 10 24H1C0.447715 24 0 23.5523 0 23V1ZM13 1C13 0.447715 13.4477 0 14 0H23C23.5523 0 24 0.447715 24 1V10C24 10.5523 23.5523 11 23 11C22.4477 11 22 10.5523 22 10V2H14C13.4477 2 13 1.55228 13 1ZM10.3827 5.07612C10.7564 5.2309 11 5.59554 11 6V18C11 18.5523 10.5523 19 10 19C9.44771 19 9 18.5523 9 18V8.41421L7.70711 9.70711C7.31658 10.0976 6.68342 10.0976 6.29289 9.70711C5.90237 9.31658 5.90237 8.68342 6.29289 8.29289L9.29289 5.29289C9.57889 5.0069 10.009 4.92134 10.3827 5.07612ZM13 18V6C13 5.44772 13.4477 5 14 5C14.5523 5 15 5.44772 15 6V15.5858L16.2929 14.2929C16.6834 13.9024 17.3166 13.9024 17.7071 14.2929C18.0976 14.6834 18.0976 15.3166 17.7071 15.7071L14.7071 18.7071C14.4211 18.9931 13.991 19.0787 13.6173 18.9239C13.2436 18.7691 13 18.4045 13 18ZM20.2929 14.2929C20.6834 13.9024 21.3166 13.9024 21.7071 14.2929L24.7071 17.2929C24.8946 17.4804 25 17.7348 25 18V21C25 21.2652 24.8946 21.5196 24.7071 21.7071L24.4142 22L31.7071 29.2929C32.0976 29.6834 32.0976 30.3166 31.7071 30.7071L30.7071 31.7071C30.3166 32.0976 29.6834 32.0976 29.2929 31.7071L22 24.4142L21.7071 24.7071C21.5196 24.8946 21.2652 25 21 25H18C17.7348 25 17.4804 24.8946 17.2929 24.7071L14.2929 21.7071C13.9024 21.3166 13.9024 20.6834 14.2929 20.2929L15.2929 19.2929C15.6834 18.9024 16.3166 18.9024 16.7071 19.2929L18.9142 21.5H20.0858L21.5 20.0858V18.9142L19.2929 16.7071C18.9024 16.3166 18.9024 15.6834 19.2929 15.2929L20.2929 14.2929Z"
+                    fill="white" />
+            </svg>
+            <h4 class="pt-2">OneUI</h4>
+        </div>
+    </div>
+</body>
+
 </html>

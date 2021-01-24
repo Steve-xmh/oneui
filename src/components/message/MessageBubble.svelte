@@ -1,8 +1,7 @@
 <script lang="ts">
     import type { CQMessage } from "../../onebot/messages";
-import ImageMessage from "./ImageMessage.svelte";
-import RawMessage from "./RawMessage.svelte";
-import TextMessage from "./TextMessage.svelte";
+    import { Theme, theme } from "../../stores/theme";
+    import Message from "./Message.svelte";
     export let userId: number = 0;
     export let userName: string = ''
     export let messages: CQMessage[] = [];
@@ -11,18 +10,12 @@ import TextMessage from "./TextMessage.svelte";
 
 <div class="bubble pt-2" classname={className}>
     <img width={35} height={35} class="avatar" class:hide={userId === 0} src={`http://q1.qlogo.cn/g?b=qq&nk=${userId}&s=640`} alt="" />
-    <div class="bubble-left" />
+    <div class="bubble-left" class:dark={$theme === Theme.Dark} />
     <div>
         {#each messages as message, i (i)}
-            <div class="bubble-main">
+            <div class="bubble-main" class:dark={$theme === Theme.Dark}>
                 <div class="font-weight-medium">{userName}</div>
-                {#if message.type === 'text' && message.data.text.trim().length > 0}
-                    <TextMessage {message} />
-                {:else if message.type === 'image'}
-                    <ImageMessage {message} />
-                {:else}
-                    <RawMessage {message} />
-                {/if}
+                <Message {message} />
             </div>
         {/each}
     </div>
@@ -48,12 +41,16 @@ import TextMessage from "./TextMessage.svelte";
         height: 8px;
         bottom: 0;
         background: radial-gradient(
-          16px at left top,transparent 48%,white 50%);
+          16px at left top,transparent 48%,#e0e0e0 50%);
         filter: drop-shadow(0 1px 2px #0003);
+    }
+    .dark.bubble-left {
+        background: radial-gradient(
+          16px at left top,transparent 48%,#343434 50%);
     }
     .bubble-main {
         /* padding: 8px; */
-        background-color: white;
+        background-color: #e0e0e0;
         width: fit-content;
         height: fit-content;
         line-break: auto;
@@ -65,6 +62,11 @@ import TextMessage from "./TextMessage.svelte";
         margin-bottom: 4px;
         overflow: hidden;
         filter: drop-shadow(0 1px 2px #0003);
+    }
+
+    .dark.bubble-main {
+        background-color: #343434;
+        color: #eeeeee
     }
 
     .bubble-main:last-child {

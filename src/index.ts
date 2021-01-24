@@ -4,9 +4,15 @@ const app: {
 } = {
     app: null
 }
-window.addEventListener('load', () => {
+function setup () {
+    window.document.body.innerHTML = ''
     app.app = new App({
         target: document.body,
     })
-})
+}
+if (window.document.body) {
+    setup()
+} else {
+    window.addEventListener('load', setup)
+}
 export default app

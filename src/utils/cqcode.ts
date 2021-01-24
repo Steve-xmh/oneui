@@ -1,5 +1,5 @@
 import type { CQMessage } from "../onebot/messages"
-// [CQ:image,file=881b0d86b7a4b63c15221c3c11b98597758-46-46.jpg,url=http://gchat.qpic.cn/gchatpic_new/3156867357/2193173165-2463085949-881B0D86B7A4B63C15221C3C11B98597/0?term=2]
+
 const cqRegExp = /^\[CQ:(?<type>\w+?)(?<params>(?:,(?:\w+?)=(?:[^\[\]\$\,]+?))*)?\]$/
 
 export function parseOne(cqcode: string): CQMessage {
@@ -33,7 +33,7 @@ export function parse(cqcode: string): CQMessage[] {
             result.push({
                 type: 'text',
                 data: {
-                    text: str
+                    text: unescapeString(str)
                 }
             })
             str = ''
@@ -41,7 +41,7 @@ export function parse(cqcode: string): CQMessage[] {
             if (nextLeft > 0) {
                 result.push({
                     type: 'text',
-                    data: { text: str.substring(0, nextLeft) }
+                    data: { text: unescapeString(str.substring(0, nextLeft)) }
                 })
             }
             const nextRight = str.search(']')
