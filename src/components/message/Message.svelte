@@ -8,6 +8,7 @@
     import TextMessage from "./TextMessage.svelte";
     import ReplyMessage from "./ReplyMessage.svelte";
     import RecordMessage from "./RecordMessage.svelte";
+    import FileMessage from "./FileMessage.svelte";
     export let message: CQMessage
 </script>
 
@@ -23,6 +24,8 @@
     <AtMessage {message} />
 {:else if message.type === 'reply'}
     <ReplyMessage {message} />
+{:else if message.type === 'file'}
+    <FileMessage {message} />
 {:else if message.type !== 'text'}
     <RawMessage {message} />
 {/if}
