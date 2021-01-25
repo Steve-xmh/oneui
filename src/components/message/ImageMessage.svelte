@@ -1,6 +1,6 @@
 <script lang="ts">
     import type { CQMessage } from "../../onebot/messages";
-import { imageViewer } from "../utils/ImageViewer.svelte";
+    import { imageViewer } from "../utils/ImageViewer.svelte";
     export let message: CQMessage
 </script>
 
