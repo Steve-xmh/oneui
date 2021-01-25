@@ -7,6 +7,7 @@
     import RawMessage from "./RawMessage.svelte";
     import TextMessage from "./TextMessage.svelte";
     import ReplyMessage from "./ReplyMessage.svelte";
+    import RecordMessage from "./RecordMessage.svelte";
     export let message: CQMessage
 </script>
 
@@ -14,6 +15,8 @@
     <TextMessage {message} />
 {:else if message.type === 'image'}
     <ImageMessage {message} />
+{:else if message.type === 'record'}
+    <RecordMessage {message} />
 {:else if message.type === 'face'}
     <FaceMessage {message} />
 {:else if message.type === 'at'}

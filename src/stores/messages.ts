@@ -1,8 +1,8 @@
-import { writable } from "svelte/store";
-import { onebot } from "../onebot";
-import type { CQMessage } from "../onebot/messages";
-import { parse } from "../utils/cqcode";
-import { getUserID } from "./contact";
+import { writable } from "svelte/store"
+import { onebot } from "../onebot"
+import type { CQMessage } from "../onebot/messages"
+import { parse } from "../utils/cqcode"
+import { getUserID } from "./contact"
 
 interface Message {
     userId: number
@@ -40,8 +40,13 @@ function createMessageDB() {
             }
             const userId = senderId || getUserID(contactId)
             const cqmsg = parse(raw_message).map(v => {
+                // Post process message
                 if (v.type === 'reply') {
                     v.data.detail = resolveReply(v)
+                } else if (v.type === 'image') {
+                    v.data.detail = Promise.resolve(v.data.url)
+                } else if (v.type === 'record') {
+                    v.data.detail = Promise.resolve('https://cors-anywhere.herokuapp.com/' + v.data.file)
                 }
                 return v
             })

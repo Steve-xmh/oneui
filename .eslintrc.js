@@ -1,14 +1,14 @@
-export default {
+module.exports = {
     env: {
         es6: true,
-        node: true
+        browser: true
     },
     extends: [
-        standard
+        'standard'
     ],
     globals: {
-        Atomics: readonly,
-        SharedArrayBuffer: readonly
+        Atomics: 'readonly',
+        SharedArrayBuffer: 'readonly'
     },
     parser: '@typescript-eslint/parser',
     parserOptions: {
@@ -19,6 +19,6 @@ export default {
         '@typescript-eslint'
     ],
     rules: {
-        indent: [1, 4]
+        indent: [2, 4]
     }
 }

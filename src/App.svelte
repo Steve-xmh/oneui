@@ -26,7 +26,9 @@
     import { selfData } from './stores/self';
     import ImageViewer from './components/utils/ImageViewer.svelte';
     import { Theme, theme } from './stores/theme';
+    import Settings from './components/settings/Settings.svelte';
     let active = false;
+    let settingsActive = false;
     let mini = false;
     let connected = false;
     let connectUrl = 'ws://localhost:5700';
@@ -42,8 +44,8 @@
 
     function onGetVersionInfo(e: CustomEvent) {
         backendMeta = `Connected ${
-            e.detail.data?.app_name || e.detail.data?.name
-        } v${e.detail.data?.app_version || e.detail.data?.version}`;
+            e.detail.data?.app_name
+        } v${e.detail.data?.app_version}`;
     }
 
     onebot.addEventListener('getVersionInfo', onGetVersionInfo);
@@ -113,13 +115,14 @@
     {/if}
     <NavigationDrawer clipped fixed {mini} {active}>
         <List>
-            <ListItem>Settings</ListItem>
+            <ListItem on:click={() => { settingsActive = true; active = false; }}>Settings</ListItem>
         </List>
         <span slot="append" class="pa-2">
             <ListItem>{backendMeta}</ListItem>
             <Button block>Disconnect</Button>
         </span>
     </NavigationDrawer>
+    <Settings bind:active={settingsActive} />
     <Overlay
         index={1}
         {active}
