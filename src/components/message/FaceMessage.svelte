@@ -7,7 +7,7 @@
         [CQFaceType.Static]: '.png',
         [CQFaceType.Dynamic]: '.png'
     }
-    const baseUrl = 'https://raw.github.com/kyubotics/coolq-http-api/bbfe6c7a370cdf2c37f510068c1168db78b0ea9f/docs/qq-face/'
+    const baseUrl = 'https://cdn.jsdelivr.net/gh/kyubotics/coolq-http-api@bbfe6c7a370cdf2c37f510068c1168db78b0ea9f/docs/qq-face/'
 
 </script>
 
