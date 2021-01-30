@@ -2,6 +2,7 @@
     import { Button, Card, CardActions, CardText, CardTitle, Overlay, Switch } from "svelte-materialify";
     import { Theme, theme } from "../../stores/theme";
     import { markdown } from "../../stores/markdown";
+    import { allRaw } from "../../stores/all-raw";
     export let active = false;
 </script>
 <Overlay {active}>
@@ -12,7 +13,14 @@
                 <Switch checked={$theme === Theme.Dark} on:change={() => theme.setTheme($theme === Theme.Dark ? Theme.Light : Theme.Dark)}>Dark Mode</Switch>
             </div>
             <div>
-                <Switch checked={$markdown} on:change={() => markdown.set(!$markdown)}>Enable Markdown (Expermantal)</Switch>
+                <Switch checked={$markdown} on:change={() => markdown.set(!$markdown)}>
+                    Enable Markdown (Expermantal)
+                </Switch>
+            </div>
+            <div>
+                <Switch checked={$markdown} on:change={() => allRaw.set(!$allRaw)}>
+                    Show messages as raw message
+                </Switch>
             </div>
         </CardText>
         <CardActions>

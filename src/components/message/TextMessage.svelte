@@ -5,7 +5,7 @@
     import { markdown } from "../../stores/markdown";
     export let message: CQMessage
 </script>
-<div class="pa-2" class:markdown={$markdown}>
+<div class="ma-2" class:markdown={$markdown}>
     {#if $markdown}
         {@html marked.parse(message.data.text)}
     {:else}

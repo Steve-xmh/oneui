@@ -8,12 +8,12 @@
     export let className: string = '';
 </script>
 
-<div class="bubble pt-2" classname={className}>
+<div class="bubble mt-2" classname={className}>
     <img width={35} height={35} class="avatar" class:hide={userId === 0} src={`http://q1.qlogo.cn/g?b=qq&nk=${userId}&s=640`} alt="" />
     <div class="bubble-left" class:dark={$theme === Theme.Dark} />
-    <div>
+    <div class="d-flex flex-column">
         {#each messages as message, i (i)}
-            <div class="bubble-main" class:dark={$theme === Theme.Dark}>
+            <div class="bubble-main" class:mt-1={i !== 0} class:dark={$theme === Theme.Dark}>
                 <div class="font-weight-medium">{userName}</div>
                 <Message {message} />
             </div>
@@ -60,7 +60,8 @@
         color: black;
         max-width: 450px;
         margin-bottom: 4px;
-        overflow: hidden;
+        overflow: visible;
+        transition: all 0.2s;
         filter: drop-shadow(0 1px 2px #0003);
     }
 

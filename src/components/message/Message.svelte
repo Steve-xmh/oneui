@@ -9,10 +9,12 @@
     import ReplyMessage from "./ReplyMessage.svelte";
     import RecordMessage from "./RecordMessage.svelte";
     import FileMessage from "./FileMessage.svelte";
+    import { allRaw } from "../../stores/all-raw";
     export let message: CQMessage
 </script>
-
-{#if message.type === 'text' && message.data.text.trim().length > 0}
+{#if $allRaw}
+    <RawMessage {message} />
+{:else if message.type === 'text' && message.data.text.trim().length > 0}
     <TextMessage {message} />
 {:else if message.type === 'image'}
     <ImageMessage {message} />

@@ -4,12 +4,12 @@
     import { mdiDownload } from '@mdi/js';
     export let message: CQMessage
 </script>
-<Card>
+<Card class="transparent">
     <CardTitle>File</CardTitle>
     <CardSubtitle>{message.data.name}</CardSubtitle>
     <CardActions>
-        <Button on:click={() => window.open(message.data.url)}>
-            <Icon path={mdiDownload} />
+        <Button text on:click={() => window.open(message.data.url)}>
+            <Icon path={mdiDownload} class="mr2" />
             Download
         </Button>
     </CardActions>

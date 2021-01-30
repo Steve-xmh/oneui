@@ -53,6 +53,14 @@ export function parse(cqcode: string): CQMessage[] {
     return result
 }
 
+export function tryParse(cqcode: string): CQMessage[] {
+    try {
+        return parse(cqcode)
+    } catch {
+        return []
+    }
+}
+
 const cqEscapes: { [char: string]: string } = {
     '&': '&amp;',
     ',': '&#44',
@@ -77,7 +85,13 @@ export function unescapeString(data: string) {
 }
 
 export function stringifyOne(cqcode: CQMessage) {
-    return `[CQ:${cqcode.type}${cqcode.data ? `,${Object.entries(cqcode.data).map(v => v[0] + '=' + escapeString(v[1] as string)).join(',')}` : ''}]`
+    return `[CQ:${cqcode.type}${cqcode.data ? `,${
+        Object.entries(cqcode.data).map(v => {
+            if (!['string', 'number'].includes(typeof v[1])) return ''
+            let a = v[0] + '=' + escapeString(v[1] as string)
+            return a
+        }).join(',')
+    }` : ''}]`
 }
 
 export function stringify(cqcodes: CQMessage[]) {

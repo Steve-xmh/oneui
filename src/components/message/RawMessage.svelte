@@ -3,7 +3,7 @@
     import { stringifyOne } from "../../utils/cqcode";
     export let message: CQMessage
 </script>
-<div class="pa-2">
+<div class="ma-2">
     <div class="raw-code">
     {stringifyOne(message)}
     </div>
@@ -17,5 +17,6 @@
     }
     .raw-code {
         font-family: monospace;
+        font-size: 11px;
     }
 </style>

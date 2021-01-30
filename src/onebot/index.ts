@@ -2,6 +2,16 @@ import genUid from "../utils/uid";
 import { BaseMessage, CQMessage, MessageMessage, PostType, SubMessageType } from "./messages";
 import type { OneBot } from "./types";
 
+export enum ConnectMethod {
+    WebSocket,
+    HttpPost
+}
+
+class NoConnectedError extends Error {
+    constructor() {
+        super('This onebot isn\'t connected to any backend.')
+    }
+}
 export class OneBotWS extends EventTarget {
     ws: WebSocket | null
     promises: {[key: string]: [Function, Function]} = {}
@@ -65,6 +75,7 @@ export class OneBotWS extends EventTarget {
     }
 
     private sendJson(obj: any) {
+        if (!this.ws) throw new NoConnectedError()
         this.ws.send(JSON.stringify(obj))
     }
     
@@ -78,6 +89,7 @@ export class OneBotWS extends EventTarget {
 
     send<T = OneBot.Action>(action: T, data?: OneBot.BaseParam<T>): Promise<OneBot.ActionResultStruct<T>> {
         return new Promise((resolve, reject) => {
+            if (!this.ws) return reject(new NoConnectedError())
             const uid = genUid()
             this.promises[uid] = [resolve, reject]
             const msg = {

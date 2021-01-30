@@ -16,6 +16,7 @@
     img {
         max-height: 200px;
         max-width: 100%;
+        border-radius: 8px;
         display: block;
     }
 </style>

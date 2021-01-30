@@ -27,11 +27,16 @@
     import ImageViewer from './components/utils/ImageViewer.svelte';
     import { Theme, theme } from './stores/theme';
     import Settings from './components/settings/Settings.svelte';
+import MessageList from './components/chat/MessageList.svelte';
+import { parse, tryParse } from './utils/cqcode';
+import MessageBubble from './components/message/MessageBubble.svelte';
     let active = false;
     let settingsActive = false;
     let mini = false;
     let connected = false;
     let connectUrl = 'ws://localhost:5700';
+    let messageBubbleTestField = 'Hello World![CQ:face,id=4]';
+    $: messageBubbleTestFieldCQ = tryParse(messageBubbleTestField);
     let backendMeta = '';
 
     function onGetFriendsInfo(e: CustomEvent) {
@@ -92,8 +97,8 @@
         <span slot="title">OneUI</span>
     </AppBar>
     {#if !connected}
-        <Container class="d-flex justify-center" style="height:calc(100%-56px)">
-            <Card style="min-width:300px;">
+        <Container class="d-flex justify-center align-center align-content-center flex-wrap" style="height:calc(100%-56px)">
+            <Card style="min-width:300px;" class="ma-2">
                 <CardTitle>Connect</CardTitle>
                 <CardText>
                     <TextField
@@ -108,6 +113,14 @@
                     >Connect</Button
                     >
                 </CardActions>
+            </Card>
+            <Card style="min-width:400px;height:500px" class="ma-2">
+                <CardTitle>MessageBubble Test</CardTitle>
+                <CardText>
+                    Input some raw message to see what the bubble looks.
+                    <Textarea autogrow rows={1} bind:value={messageBubbleTestField} />
+                    <MessageBubble userId={1} messages={messageBubbleTestFieldCQ}/>
+                </CardText>
             </Card>
         </Container>
     {:else}

@@ -2,6 +2,7 @@ import { writable } from "svelte/store"
 import { onebot } from "../onebot"
 import type { CQMessage } from "../onebot/messages"
 import { parse } from "../utils/cqcode"
+import { decode, makeAudioSource } from "../utils/audio"
 import { getUserID } from "./contact"
 
 interface Message {
@@ -46,7 +47,24 @@ function createMessageDB() {
                 } else if (v.type === 'image') {
                     v.data.detail = Promise.resolve(v.data.url)
                 } else if (v.type === 'record') {
-                    v.data.detail = Promise.resolve('https://cors-anywhere.herokuapp.com/' + v.data.file)
+                    v.data.detail = (async () => {
+                        const arraybuf = await (async () => {
+                            try {
+                                const result = await fetch(v.data.file)
+                                return await result.arrayBuffer()
+                            } catch {
+                                // Try cors anywhere
+                                const result = await fetch('https://cors-anywhere.herokuapp.com/' + v.data.file)
+                                return await result.arrayBuffer()
+                            }
+                        })();
+                        try {
+                            return makeAudioSource(decode(new Uint8Array(arraybuf)))
+                        } catch (err) {
+                            console.error('Decode Error:', err)
+                            throw err
+                        }
+                    })()
                 }
                 return v
             })

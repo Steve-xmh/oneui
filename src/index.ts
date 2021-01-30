@@ -1,4 +1,5 @@
 import App from './App.svelte'
+
 const app: {
     app: App | null
 } = {
