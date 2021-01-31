@@ -17,7 +17,7 @@
         Textarea,
         Avatar,
         ListGroup,
-    } from 'svelte-materialify';
+    } from 'svelte-materialify/src';
     import type { OneBotWS } from '../../onebot';
     import { MessageType } from '../../onebot/messages';
     import {
@@ -64,49 +64,77 @@
                 const cid = $contact;
                 // Transform into base64 and send them
                 const msg = (() => {
-                    let r: File[][] = []
+                    let r: File[][] = [];
                     let index = 0;
                     let chunk: File[] = [];
                     for (let i = 0; i < node.files.length; i++) {
                         index++;
                         if (index >= 10) {
-                            r.push(chunk)
-                            chunk = []
-                            index = 0
+                            r.push(chunk);
+                            chunk = [];
+                            index = 0;
                         }
-                        chunk.push(node.files[i])
+                        chunk.push(node.files[i]);
                     }
-                    r.push(chunk)
-                    return r
+                    r.push(chunk);
+                    return r;
                 })();
-                const msgs = await Promise.all(msg.map(async msgs => {
-                    return (await Promise.all(msgs.map(async v => {
-                        if (v.type.startsWith('image')) {
-                            console.log('Collected image', v.name)
-                            return '[CQ:image,file=base64://' + toBase64(new Uint8Array(await v.arrayBuffer())) + ']'
-                        } else if (v.type.startsWith('audio')) {
-                            console.log('Collected audio', v.name)
-                            return '[CQ:record,file=base64://' + toBase64(new Uint8Array(await v.arrayBuffer()))+ ']'
-                        } else {
-                            console.warn('Unknown file type', v.type, 'of', v.name, 'with size', v.size, ', ignored')
-                        }
-                    }))).join('')
-                }))
+                const msgs = await Promise.all(
+                    msg.map(async (msgs) => {
+                        return (
+                            await Promise.all(
+                                msgs.map(async (v) => {
+                                    if (v.type.startsWith('image')) {
+                                        console.log('Collected image', v.name);
+                                        return (
+                                            '[CQ:image,file=base64://' +
+                                            toBase64(
+                                                new Uint8Array(
+                                                    await v.arrayBuffer()
+                                                )
+                                            ) +
+                                            ']'
+                                        );
+                                    } else if (v.type.startsWith('audio')) {
+                                        console.log('Collected audio', v.name);
+                                        return (
+                                            '[CQ:record,file=base64://' +
+                                            toBase64(
+                                                new Uint8Array(
+                                                    await v.arrayBuffer()
+                                                )
+                                            ) +
+                                            ']'
+                                        );
+                                    } else {
+                                        console.warn(
+                                            'Unknown file type',
+                                            v.type,
+                                            'of',
+                                            v.name,
+                                            'with size',
+                                            v.size,
+                                            ', ignored'
+                                        );
+                                    }
+                                })
+                            )
+                        ).join('');
+                    })
+                );
                 for (const msg of msgs) {
                     try {
-                        const msgId = await sendMsg(msg)
-                        const rawMsg = (await onebot.getMessageByID(msgId as string)).data;
+                        const msgId = await sendMsg(msg);
+                        const rawMsg = (
+                            await onebot.getMessageByID(msgId as string)
+                        ).data;
                         messageDB.addMessage(
                             cid,
                             rawMsg.raw_message,
                             $selfData.userId
                         );
                     } catch {
-                        messageDB.addMessage(
-                            cid,
-                            msg,
-                            $selfData.userId
-                        );
+                        messageDB.addMessage(cid, msg, $selfData.userId);
                     }
                 }
             }
@@ -117,17 +145,9 @@
         const cid = $contact;
         const ctype = getContactType(cid);
         if (ctype === MessageType.Private) {
-            return await onebot.sendPrivateMsg(
-                getUserID(cid),
-                msg,
-                autoEscape
-            );
+            return await onebot.sendPrivateMsg(getUserID(cid), msg, autoEscape);
         } else if (ctype === MessageType.Group) {
-            return await onebot.sendGroupMsg(
-                getUserID(cid),
-                msg,
-                autoEscape
-            );
+            return await onebot.sendGroupMsg(getUserID(cid), msg, autoEscape);
         }
     }
 
@@ -145,9 +165,11 @@
             sendingMessage = true;
             let msgId;
             try {
-                msgId = await sendMsg(msg, true)
+                msgId = await sendMsg(msg, true);
                 try {
-                    const rawMsg = (await onebot.getMessageByID(msgId as string)).data;
+                    const rawMsg = (
+                        await onebot.getMessageByID(msgId as string)
+                    ).data;
                     tryScrollToBottom();
                     messageDB.addMessage(
                         cid,
@@ -260,7 +282,9 @@
     {#if $contact === ''}
         <div
             class="d-flex justify-center align-center max-size text--secondary"
-        >Nothing is there, click a user or a group to chat.</div>
+        >
+            Nothing is there, click a user or a group to chat.
+        </div>
     {:else}
         <div class="d-flex flex-column max-size">
             <MessageList

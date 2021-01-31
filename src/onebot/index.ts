@@ -13,9 +13,10 @@ class NoConnectedError extends Error {
     }
 }
 export class OneBotWS extends EventTarget {
-    ws: WebSocket | null
-    promises: {[key: string]: [Function, Function]} = {}
-    constructor () {
+    connected: boolean = false
+    ws: WebSocket | null = null
+    promises: { [key: string]: [Function, Function] } = {}
+    constructor() {
         super()
         this.ws = null
         // Authorization
@@ -46,7 +47,7 @@ export class OneBotWS extends EventTarget {
                 // Is base message
                 if ('post_type' in data) {
                     const baseMsg = data as BaseMessage
-                    switch(baseMsg.post_type) {
+                    switch (baseMsg.post_type) {
                         case PostType.Message: {
                             const msg = baseMsg as MessageMessage
                             this.dispatchEvent(new CustomEvent('userMessage', {
@@ -78,7 +79,7 @@ export class OneBotWS extends EventTarget {
         if (!this.ws) throw new NoConnectedError()
         this.ws.send(JSON.stringify(obj))
     }
-    
+
     async sendAndEmit<T = OneBot.Action>(action: T, eventName: string, data?: OneBot.BaseParam<T>) {
         await this.send(action, data).then(v => {
             this.dispatchEvent(new CustomEvent(eventName, {

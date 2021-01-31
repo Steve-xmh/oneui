@@ -1417,10 +1417,10 @@ safe-buffer@^5.1.0:
   resolved "https://registry.npm.taobao.org/safer-buffer/download/safer-buffer-2.1.2.tgz#44fa161b0187b9549dd84bb91802f9bd8385cd6a"
   integrity sha1-RPoWGwGHuVSd2Eu5GAL5vYOFzWo=
 
-sass@^1.32.4:
-  version "1.32.4"
-  resolved "https://registry.npm.taobao.org/sass/download/sass-1.32.4.tgz?cache=0&sync_timestamp=1610418274193&other_urls=https%3A%2F%2Fregistry.npm.taobao.org%2Fsass%2Fdownload%2Fsass-1.32.4.tgz#308bf29dd7f53d44ae4f06580e9a910ad9aa411e"
-  integrity sha1-MIvyndf1PUSuTwZYDpqRCtmqQR4=
+sass@^1.32.5:
+  version "1.32.5"
+  resolved "https://registry.npm.taobao.org/sass/download/sass-1.32.5.tgz#2882d22ad5748c05fa9bff6c3b0ffbc4f4b9e1dc"
+  integrity sha1-KILSKtV0jAX6m/9sOw/7xPS54dw=
   dependencies:
     chokidar ">=2.0.0 <4.0.0"
 
@@ -1592,10 +1592,10 @@ svelte-materialify@^0.3.4:
   resolved "https://registry.npm.taobao.org/svelte-materialify/download/svelte-materialify-0.3.4.tgz#53bf1701c543f90e13b9f823ce123053ce1e3c35"
   integrity sha1-U78XAcVD+Q4TufgjzhIwU84ePDU=
 
-svelte-preprocess@^4.6.1:
-  version "4.6.1"
-  resolved "https://registry.npm.taobao.org/svelte-preprocess/download/svelte-preprocess-4.6.1.tgz#a7de4d91b32d5608b6637da960ee81e6089ae276"
-  integrity sha1-p95NkbMtVgi2Y32pYO6B5gia4nY=
+svelte-preprocess@^4.6.5:
+  version "4.6.5"
+  resolved "https://registry.npm.taobao.org/svelte-preprocess/download/svelte-preprocess-4.6.5.tgz#65cd8e26241ce7e53a8c306472cefcb494a550f1"
+  integrity sha1-Zc2OJiQc5+U6jDBkcs78tJSlUPE=
   dependencies:
     "@types/pug" "^2.0.4"
     "@types/sass" "^1.16.0"

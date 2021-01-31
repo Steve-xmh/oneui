@@ -1,18 +1,18 @@
-
 <script lang="ts">
-    import type { CQMessage } from "../../onebot/messages";
-    import AtMessage from "./AtMessage.svelte";
-    import FaceMessage from "./FaceMessage.svelte";
-    import ImageMessage from "./ImageMessage.svelte";
-    import RawMessage from "./RawMessage.svelte";
-    import TextMessage from "./TextMessage.svelte";
-    import ReplyMessage from "./ReplyMessage.svelte";
-    import RecordMessage from "./RecordMessage.svelte";
-    import FileMessage from "./FileMessage.svelte";
-    import { allRaw } from "../../stores/all-raw";
-    export let message: CQMessage
+    import type { CQMessage } from '../../onebot/messages';
+    import AtMessage from './AtMessage.svelte';
+    import FaceMessage from './FaceMessage.svelte';
+    import ImageMessage from './ImageMessage.svelte';
+    import RawMessage from './RawMessage.svelte';
+    import TextMessage from './TextMessage.svelte';
+    import ReplyMessage from './ReplyMessage.svelte';
+    import RecordMessage from './RecordMessage.svelte';
+    import FileMessage from './FileMessage.svelte';
+    import { settings } from '../../stores/settings';
+    export let message: CQMessage;
 </script>
-{#if $allRaw}
+
+{#if $settings.allRaw}
     <RawMessage {message} />
 {:else if message.type === 'text' && message.data.text.trim().length > 0}
     <TextMessage {message} />

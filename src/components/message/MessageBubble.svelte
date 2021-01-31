@@ -1,19 +1,32 @@
 <script lang="ts">
-    import type { CQMessage } from "../../onebot/messages";
-    import { Theme, theme } from "../../stores/theme";
-    import Message from "./Message.svelte";
+    import type { CQMessage } from '../../onebot/messages';
+    import { settings } from '../../stores/settings';
+    import { Theme } from '../../stores/theme';
+    import Message from './Message.svelte';
+    export let style: string;
     export let userId: number = 0;
-    export let userName: string = ''
+    export let userName: string = '';
     export let messages: CQMessage[] = [];
     export let className: string = '';
 </script>
 
-<div class="bubble mt-2" classname={className}>
-    <img width={35} height={35} class="avatar" class:hide={userId === 0} src={`http://q1.qlogo.cn/g?b=qq&nk=${userId}&s=640`} alt="" />
-    <div class="bubble-left" class:dark={$theme === Theme.Dark} />
+<div class="bubble mt-2" classname={className} {style}>
+    <img
+        width={35}
+        height={35}
+        class="avatar"
+        class:hide={userId === 0}
+        src={`http://q1.qlogo.cn/g?b=qq&nk=${userId}&s=640`}
+        alt=""
+    />
+    <div class="bubble-left" class:dark={$settings.theme === Theme.Dark} />
     <div class="d-flex flex-column">
         {#each messages as message, i (i)}
-            <div class="bubble-main" class:mt-1={i !== 0} class:dark={$theme === Theme.Dark}>
+            <div
+                class="bubble-main"
+                class:mt-1={i !== 0}
+                class:dark={$settings.theme === Theme.Dark}
+            >
                 <div class="font-weight-medium">{userName}</div>
                 <Message {message} />
             </div>
@@ -41,12 +54,18 @@
         height: 8px;
         bottom: 0;
         background: radial-gradient(
-          16px at left top,transparent 48%,#e0e0e0 50%);
+            16px at left top,
+            transparent 48%,
+            #e0e0e0 50%
+        );
         filter: drop-shadow(0 1px 2px #0003);
     }
     .dark.bubble-left {
         background: radial-gradient(
-          16px at left top,transparent 48%,#343434 50%);
+            16px at left top,
+            transparent 48%,
+            #343434 50%
+        );
     }
     .bubble-main {
         /* padding: 8px; */
@@ -67,7 +86,7 @@
 
     .dark.bubble-main {
         background-color: #343434;
-        color: #eeeeee
+        color: #eeeeee;
     }
 
     .bubble-main:last-child {

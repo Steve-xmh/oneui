@@ -1,6 +1,6 @@
 <script lang="ts">
     import type { CQMessage } from '../../onebot/messages';
-    import { ProgressCircular } from 'svelte-materialify';
+    import { ProgressCircular } from 'svelte-materialify/src';
     import Message from './Message.svelte';
     export let message: CQMessage;
 </script>

@@ -15,9 +15,13 @@
         Textarea,
         CardActions,
         Overlay,
-    } from 'svelte-materialify';
+        Tabs,
+        Tab,
+        Window,
+        WindowItem,
+    } from 'svelte-materialify/src';
     import { mdiMenu } from '@mdi/js';
-    import { OneBotWS, onebot } from './onebot';
+    import { onebot } from './onebot';
     import type { MessageMessage, GroupMessage } from './onebot/messages';
     import { MessageType } from './onebot/messages';
     import { getContactID } from './stores/contact';
@@ -25,16 +29,18 @@
     import Chat from './components/chat/Chat.svelte';
     import { selfData } from './stores/self';
     import ImageViewer from './components/utils/ImageViewer.svelte';
-    import { Theme, theme } from './stores/theme';
+    import { Theme } from './stores/theme';
     import Settings from './components/settings/Settings.svelte';
-import MessageList from './components/chat/MessageList.svelte';
-import { parse, tryParse } from './utils/cqcode';
-import MessageBubble from './components/message/MessageBubble.svelte';
+    import { settings } from './stores/settings';
+    import { tryParse } from './utils/cqcode';
+    import MessageBubble from './components/message/MessageBubble.svelte';
     let active = false;
     let settingsActive = false;
     let mini = false;
     let connected = false;
+    let connectMethod = 0;
     let connectUrl = 'ws://localhost:5700';
+    let connectUrlAuth = '';
     let messageBubbleTestField = 'Hello World![CQ:face,id=4]';
     $: messageBubbleTestFieldCQ = tryParse(messageBubbleTestField);
     let backendMeta = '';
@@ -48,9 +54,7 @@ import MessageBubble from './components/message/MessageBubble.svelte';
     }
 
     function onGetVersionInfo(e: CustomEvent) {
-        backendMeta = `Connected ${
-            e.detail.data?.app_name
-        } v${e.detail.data?.app_version}`;
+        backendMeta = `Connected ${e.detail.data?.app_name} v${e.detail.data?.app_version}`;
     }
 
     onebot.addEventListener('getVersionInfo', onGetVersionInfo);
@@ -81,7 +85,7 @@ import MessageBubble from './components/message/MessageBubble.svelte';
     }
 </script>
 
-<MaterialApp theme={$theme === Theme.Dark ? 'dark' : 'light'}>
+<MaterialApp theme={$settings.theme === Theme.Dark ? 'dark' : 'light'}>
     <AppBar>
         <div slot="icon">
             <Button
@@ -97,20 +101,49 @@ import MessageBubble from './components/message/MessageBubble.svelte';
         <span slot="title">OneUI</span>
     </AppBar>
     {#if !connected}
-        <Container class="d-flex justify-center align-center align-content-center flex-wrap" style="height:calc(100%-56px)">
-            <Card style="min-width:300px;" class="ma-2">
-                <CardTitle>Connect</CardTitle>
-                <CardText>
-                    <TextField
-                        placeholder="Connect Url"
-                        bind:value={connectUrl}
-                    />
-                </CardText>
+        <Container
+            class="d-flex justify-center align-center align-content-center flex-wrap"
+            style="height:calc(100%-56px)"
+        >
+            <Card style="width:400px;" class="ma-2">
+                <CardTitle>Connect to OneBot</CardTitle>
+                <Tabs bind:value={connectMethod} class="primary-text" fixedTabs>
+                    <div slot="tabs">
+                        <Tab>WebSocket</Tab>
+                        <Tab>HTTP</Tab>
+                    </div>
+                </Tabs>
+                <Window value={connectMethod}>
+                    <WindowItem>
+                        <CardText>
+                            <TextField
+                                placeholder="Connect Url"
+                                bind:value={connectUrl}
+                            />
+                        </CardText>
+                    </WindowItem>
+                    <WindowItem>
+                        <CardText>
+                            Still work in progress, it will connect as
+                            WebSocket.
+                            <TextField
+                                placeholder="Connect Url"
+                                bind:value={connectUrl}
+                            />
+                            <TextField
+                                placeholder="Serects"
+                                bind:value={connectUrlAuth}
+                            />
+                        </CardText>
+                    </WindowItem>
+                </Window>
                 <CardActions>
                     <Button
+                        text
+                        block
+                        class="primary-text"
                         disabled={connectUrl.length === 0}
-                        on:click={connectHost}
-                    >Connect</Button
+                        on:click={connectHost}>Connect</Button
                     >
                 </CardActions>
             </Card>
@@ -118,8 +151,16 @@ import MessageBubble from './components/message/MessageBubble.svelte';
                 <CardTitle>MessageBubble Test</CardTitle>
                 <CardText>
                     Input some raw message to see what the bubble looks.
-                    <Textarea autogrow rows={1} bind:value={messageBubbleTestField} />
-                    <MessageBubble userId={1} messages={messageBubbleTestFieldCQ}/>
+                    <Textarea
+                        autogrow
+                        rows={1}
+                        bind:value={messageBubbleTestField}
+                    />
+                    <MessageBubble
+                        userId={1}
+                        style="min-height:fit-content;"
+                        messages={messageBubbleTestFieldCQ}
+                    />
                 </CardText>
             </Card>
         </Container>
@@ -128,11 +169,18 @@ import MessageBubble from './components/message/MessageBubble.svelte';
     {/if}
     <NavigationDrawer clipped fixed {mini} {active}>
         <List>
-            <ListItem on:click={() => { settingsActive = true; active = false; }}>Settings</ListItem>
+            <ListItem
+                on:click={() => {
+                    settingsActive = true;
+                    active = false;
+                }}>Settings</ListItem
+            >
         </List>
         <span slot="append" class="pa-2">
-            <ListItem>{backendMeta}</ListItem>
-            <Button block>Disconnect</Button>
+            {#if connected}
+                <ListItem>{backendMeta}</ListItem>
+                <Button block>Disconnect</Button>
+            {/if}
         </span>
     </NavigationDrawer>
     <Settings bind:active={settingsActive} />
@@ -146,3 +194,5 @@ import MessageBubble from './components/message/MessageBubble.svelte';
     />
     <ImageViewer />
 </MaterialApp>
+
+<style lang="scss" src="./App.scss" global></style>
