@@ -53,8 +53,7 @@ export default {
 			}),
 			compilerOptions: {
 				// enable run-time checks when not in production
-				dev: !production,
-				css: false
+				dev: !production
 			}
 		}),
 		// we'll extract any component CSS out into
