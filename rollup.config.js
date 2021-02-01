@@ -33,7 +33,6 @@ function serve() {
 
 export default {
 	input: 'src/index.ts',
-	external: ['AMR', 'amr'],
 	output: {
 		sourcemap: true,
 		format: 'iife',
