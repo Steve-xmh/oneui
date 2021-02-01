@@ -14,19 +14,23 @@ class NoConnectedError extends Error {
 }
 export class OneBotWS extends EventTarget {
     connected: boolean = false
-    ws: WebSocket | null = null
-    promises: { [key: string]: [Function, Function] } = {}
+
+    private connectMethod: ConnectMethod = ConnectMethod.WebSocket
+    private ws?: WebSocket = undefined
+    private serect?: string = ''
+    private promises: { [key: string]: [Function, Function] } = {}
+
     constructor() {
         super()
-        this.ws = null
-        // Authorization
     }
 
-    connect(host: string) {
-        if (this.ws) this.ws.close()
+    connect(method: ConnectMethod, host: string, serect?: string) {
+        if (this.connected) this.disconnect()
+        this.serect = serect
         this.ws = new WebSocket(host)
         this.registerEvents()
-        this.ws.addEventListener('open', e => {
+        this.ws.addEventListener('open', () => {
+            this.connected = true
             this.dispatchEvent(new CustomEvent('ws.open'))
             this.sendAndEmit('get_login_info', 'getLoginInfo')
             this.sendAndEmit('get_version_info', 'getVersionInfo')
@@ -36,43 +40,58 @@ export class OneBotWS extends EventTarget {
         this.ws.addEventListener('message', e => {
             try {
                 const data: OneBot.ActionResultStruct<any> = JSON.parse(e.data)
-                console.log('[OneBot WS]', data)
-                if (data.echo) {
-                    if (data.echo in this.promises) {
-                        const [resolve, reject] = this.promises[data.echo]
-                        resolve(data)
-                        delete this.promises[data.echo]
-                    }
-                }
-                // Is base message
-                if ('post_type' in data) {
-                    const baseMsg = data as BaseMessage
-                    switch (baseMsg.post_type) {
-                        case PostType.Message: {
-                            const msg = baseMsg as MessageMessage
-                            this.dispatchEvent(new CustomEvent('userMessage', {
-                                detail: msg
-                            }))
-                            break
-                        }
-                        case PostType.MetaEvent: {
-                            break
-                        }
-                        case PostType.Request: {
-                            break
-                        }
-                        case PostType.MetaEvent: {
-                            break
-                        }
-                        default: {
-                            console.warn('Unknown post type', baseMsg.post_type)
-                        }
-                    }
-                }
+                this.parseMessage(data)
             } catch (err) {
                 console.error('Can\'t parse socket data', e.data, err)
             }
         })
+        this.ws.addEventListener('close', () => {
+
+        })
+        this.ws.addEventListener('error', (evt) => {
+            
+        })
+    }
+
+    disconnect() {
+        if (!this.connected) return
+        if (this.ws) {
+            this.ws.close()
+            this.ws = undefined
+        }
+        this.connected = false
+    }
+
+    private parseMessage(data: OneBot.ActionResultStruct<any>) {
+        console.log('[OneBot WS]', data)
+        if (data.echo) {
+            if (data.echo in this.promises) {
+                const [resolve, reject] = this.promises[data.echo]
+                resolve(data)
+                delete this.promises[data.echo]
+            }
+        }
+        // Is base message
+        if ('post_type' in data) {
+            const baseMsg = data as BaseMessage
+            switch (baseMsg.post_type) {
+                case PostType.Message: {
+                    const msg = baseMsg as MessageMessage
+                    this.dispatchEvent(new CustomEvent('userMessage', {
+                        detail: msg
+                    }))
+                    break
+                }
+                case PostType.MetaEvent:
+                case PostType.Request:
+                case PostType.MetaEvent: {
+                    break
+                }
+                default: {
+                    console.warn('Unknown post type', baseMsg.post_type)
+                }
+            }
+        }
     }
 
     private sendJson(obj: any) {

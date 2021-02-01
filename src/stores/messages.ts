@@ -59,7 +59,7 @@ function createMessageDB() {
                             }
                         })();
                         try {
-                            return makeAudioSource(decode(new Uint8Array(arraybuf)))
+                            return makeAudioSource(await decode(new Uint8Array(arraybuf)))
                         } catch (err) {
                             console.error('Decode Error:', err)
                             throw err

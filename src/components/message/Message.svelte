@@ -10,24 +10,19 @@
     import FileMessage from './FileMessage.svelte';
     import { settings } from '../../stores/settings';
     export let message: CQMessage;
+    const messages = {
+        text: TextMessage,
+        image: ImageMessage,
+        record: RecordMessage,
+        face: FaceMessage,
+        at: AtMessage,
+        reply: ReplyMessage,
+        file: FileMessage,
+    }
 </script>
 
-{#if $settings.allRaw}
+{#if $settings.allRaw || !(message.type in messages)}
     <RawMessage {message} />
-{:else if message.type === 'text' && message.data.text.trim().length > 0}
-    <TextMessage {message} />
-{:else if message.type === 'image'}
-    <ImageMessage {message} />
-{:else if message.type === 'record'}
-    <RecordMessage {message} />
-{:else if message.type === 'face'}
-    <FaceMessage {message} />
-{:else if message.type === 'at'}
-    <AtMessage {message} />
-{:else if message.type === 'reply'}
-    <ReplyMessage {message} />
-{:else if message.type === 'file'}
-    <FileMessage {message} />
-{:else if message.type !== 'text'}
-    <RawMessage {message} />
+{:else}
+    <svelte:component this={messages[message.type]} {message} />
 {/if}

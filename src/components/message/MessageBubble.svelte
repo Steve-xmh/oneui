@@ -2,10 +2,10 @@
     import type { CQMessage } from '../../onebot/messages';
     import { settings } from '../../stores/settings';
     import { Theme } from '../../stores/theme';
+import { users } from '../../stores/users';
     import Message from './Message.svelte';
     export let style: string;
     export let userId: number = 0;
-    export let userName: string = '';
     export let messages: CQMessage[] = [];
     export let className: string = '';
 </script>
@@ -27,7 +27,13 @@
                 class:mt-1={i !== 0}
                 class:dark={$settings.theme === Theme.Dark}
             >
-                <div class="font-weight-medium">{userName}</div>
+            {#if i === 0 && (userId in $users)}
+                <div
+                    class="font-weight-bold green-text mr-2 ml-2 mt-2"
+                    class:mb-n3={['text'].includes(message.type)}
+                    class:mb-2={!(['text'].includes(message.type))}
+                >{$users[userId].card || $users[userId].nickname}</div>
+            {/if}
                 <Message {message} />
             </div>
         {/each}

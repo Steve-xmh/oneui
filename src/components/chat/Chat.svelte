@@ -58,23 +58,21 @@
 
     let imageOrAudioInput: HTMLInputElement;
 
-    function setupImageOrAudioInput(node: HTMLInputElement) {
-        node.addEventListener('change', async () => {
-            if (node.files && node.files.length > 0) {
+    async function sendFiles(files: File[]) {
                 const cid = $contact;
                 // Transform into base64 and send them
                 const msg = (() => {
                     let r: File[][] = [];
                     let index = 0;
                     let chunk: File[] = [];
-                    for (let i = 0; i < node.files.length; i++) {
+                    for (let i = 0; i < files.length; i++) {
                         index++;
                         if (index >= 10) {
                             r.push(chunk);
                             chunk = [];
                             index = 0;
                         }
-                        chunk.push(node.files[i]);
+                        chunk.push(files[i]);
                     }
                     r.push(chunk);
                     return r;
@@ -84,28 +82,11 @@
                         return (
                             await Promise.all(
                                 msgs.map(async (v) => {
-                                    if (v.type.startsWith('image')) {
-                                        console.log('Collected image', v.name);
-                                        return (
-                                            '[CQ:image,file=base64://' +
-                                            toBase64(
-                                                new Uint8Array(
-                                                    await v.arrayBuffer()
-                                                )
-                                            ) +
-                                            ']'
-                                        );
-                                    } else if (v.type.startsWith('audio')) {
-                                        console.log('Collected audio', v.name);
-                                        return (
-                                            '[CQ:record,file=base64://' +
-                                            toBase64(
-                                                new Uint8Array(
-                                                    await v.arrayBuffer()
-                                                )
-                                            ) +
-                                            ']'
-                                        );
+                                    const supportedFileType = [['image', 'image'], ['audio', 'record'], ['video', 'video']]
+                                    const fileType = supportedFileType.find(a => v.type.startsWith(a[0]))
+                                    if (fileType) {
+                                        console.log('Collected', fileType[0], v.name);
+                                        return '[CQ:' + fileType[1] + ',file=base64://' + toBase64(new Uint8Array(await v.arrayBuffer())) + ']';
                                     } else {
                                         console.warn(
                                             'Unknown file type',
@@ -137,6 +118,16 @@
                         messageDB.addMessage(cid, msg, $selfData.userId);
                     }
                 }
+    }
+
+    function setupImageOrAudioInput(node: HTMLInputElement) {
+        node.addEventListener('change', async () => {
+            if (node.files && node.files.length > 0) {
+                const files: File[] = []
+                for (let i = 0; i < node.files.length; i++) {
+                    files.push(node.files[i])
+                }
+                await sendFiles(files)
             }
         });
     }
@@ -184,7 +175,41 @@
             sendingMessage = false;
         }
     }
+
+    let messageFieldFocusing = false;
+
+    function messageKeyPress(e: KeyboardEvent) {
+        if (messageFieldFocusing && e.ctrlKey && e.key === 'Enter' && messageField.length > 0) {
+            sendMessage()
+        }
+    }
+
+    async function pasteFile(e: ClipboardEvent) {
+        if (messageFieldFocusing) {
+            if (e.clipboardData) {
+                const items = e.clipboardData.items
+                for (const index in items) {
+                    const item = items[index]
+                    if (item.kind === 'file' &&
+                        (
+                            item.type.startsWith('image') ||
+                            item.type.startsWith('audio') ||
+                            item.type.startsWith('video')
+                        )) {
+                        const file = item.getAsFile()
+                        if (file) {
+                            await sendFiles([file])
+                        }
+                    }
+                }
+            }
+        }
+    }
+
 </script>
+
+<svelte:window on:keydown={messageKeyPress}/>
+<svelte:body on:paste={pasteFile} />
 
 <NavigationDrawer clipped absolute width={400}>
     <List rounded>
@@ -311,6 +336,8 @@
                         rows={1}
                         placeholder="Chating here"
                         bind:value={messageField}
+                        on:focus={() => { messageFieldFocusing = true }}
+                        on:blur={() => { messageFieldFocusing = false }}
                     />
                 </div>
                 <Button

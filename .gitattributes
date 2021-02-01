@@ -1,3 +1,4 @@
 libs/**/* -linguist-detectable
-src/utils/silksdk.js -linguist-detectable
 public/amrnb.min.js -linguist-detectable
+public/silksdk.js -linguist-detectable
+public/silksdk.wasm -linguist-detectable

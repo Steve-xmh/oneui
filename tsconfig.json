@@ -2,7 +2,8 @@
     "extends": "@tsconfig/svelte/tsconfig.json",
     "compilerOptions": {
         "target": "es6",
-        "lib": ["esnext", "dom"],
+        "lib": ["esnext", "dom", "WebWorker.ImportScripts"],
+        "isolatedModules": false,
         "alwaysStrict": true,
         "strict": true,
     },

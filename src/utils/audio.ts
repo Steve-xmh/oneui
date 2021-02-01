@@ -2,24 +2,11 @@
  * @fileoverview
  * A simple SLIKv3/AMR audio decoder.
  */
-import { Slugger } from 'marked'
-import silkv3, { EmscriptenModule } from './silksdk'
-import AMR from 'amr'
-import genUid from './uid'
+import DecodeWorker from 'web-worker:./audio-worker.ts'
+import { create } from 'web-worker-proxy'
+import type { DecodeWorkerProxy } from './audio-worker'
 
-export let SilkSDK: EmscriptenModule | null = null
-
-export const silkLoader = silkv3({
-    arguments: [],
-    // print: () => {},
-    // printErr: () => {},
-    print: (a: string) => console.log('[OneUI-Audio]', a),
-    printErr: (a: string) => console.log('[OneUI-Audio]', a)
-}).then(a => {
-    console.log('OneUI-Audio is ready!')
-    SilkSDK = a
-    return SilkSDK
-})
+const decodeWorker = create(new DecodeWorker()) as DecodeWorkerProxy;
 
 function isEqual (a: Uint8Array, b: Uint8Array) {
     if (a.length === b.length) {
@@ -37,7 +24,7 @@ const silkHeader = new Uint8Array([0x23, 0x21, 0x53, 0x49, 0x4C, 0x4B, 0x5F, 0x5
 // #!AMR\n
 const amrHeader = new Uint8Array([0x23, 0x21, 0x41, 0x4d, 0x52, 0x0a])
 
-export function isSLIKAudio (data: Uint8Array): number {
+function isSLIKAudio (data: Uint8Array): number {
     if (data.length < silkHeader.length) {
         return 0
     } else if (data[0] === 0x02) {
@@ -51,7 +38,7 @@ export function isSLIKAudio (data: Uint8Array): number {
     }
 }
 
-export function isAMRAudio (data: Uint8Array): boolean {
+function isAMRAudio (data: Uint8Array): boolean {
     if (data.length < silkHeader.length) {
         return false
     } else {
@@ -59,44 +46,19 @@ export function isAMRAudio (data: Uint8Array): boolean {
     }
 }
 
-export function decodeAMR (data: Uint8Array) {
-    const decoder = new AMR({})
-    const result = decoder.decode(data)
-    decoder.close()
-    return result
-}
-
-export function decodeSilkV3 (data: Uint8Array) {
-    if (!SilkSDK) {
-        throw new Error('SilkSDK is not ready.')
-    }
-    const sourceFile = genUid() + '.bit'
-    const destFile = genUid() + '.pcm'
-    SilkSDK.FS.writeFile(sourceFile, data)
-    SilkSDK.callMain([sourceFile, destFile])
-    const result = SilkSDK.FS.readFile(destFile)
-    SilkSDK.FS.unlink(sourceFile)
-    SilkSDK.FS.unlink(destFile)
-    const a = new Float32Array(result.length)
-    for (let i = 0; i < a.length; i++) {
-        a[i] = result[i] / 32768
-    }
-    return a
-}
-
 /**
  * Decode silkv3/amr audio, return raw pcm wave array (s16le, 24000 rate, 1 channel)
  * @param data The raw silk data
  */
-export function decode (data: Uint8Array): DecodeResult {
+export async function decode (data: Uint8Array): Promise<DecodeResult> {
     if (isAMRAudio(data)) {
         return {
-            wave: decodeAMR(data),
+            wave: await decodeWorker.decodeAMR(data),
             type: 'amr'
         }
     } else if (isSLIKAudio(data) !== 0) {
         return {
-            wave: decodeSilkV3(data),
+            wave: await decodeWorker.decodeSilkV3(data),
             type: 'silk'
         }
     } else {

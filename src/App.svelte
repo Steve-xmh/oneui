@@ -21,7 +21,7 @@
         WindowItem,
     } from 'svelte-materialify/src';
     import { mdiMenu } from '@mdi/js';
-    import { onebot } from './onebot';
+    import { ConnectMethod, onebot } from './onebot';
     import type { MessageMessage, GroupMessage } from './onebot/messages';
     import { MessageType } from './onebot/messages';
     import { getContactID } from './stores/contact';
@@ -34,12 +34,15 @@
     import { settings } from './stores/settings';
     import { tryParse } from './utils/cqcode';
     import MessageBubble from './components/message/MessageBubble.svelte';
+    import l from './i18n/index';
+import { users } from './stores/users';
     let active = false;
     let settingsActive = false;
     let mini = false;
     let connected = false;
     let connectMethod = 0;
     let connectUrl = 'ws://localhost:5700';
+    let connectHttpUrl = 'http://localhost:5700';
     let connectUrlAuth = '';
     let messageBubbleTestField = 'Hello World![CQ:face,id=4]';
     $: messageBubbleTestFieldCQ = tryParse(messageBubbleTestField);
@@ -67,19 +70,25 @@
         const baseMsg = e.detail as MessageMessage;
         if (baseMsg.message_type === MessageType.Private) {
             const cid = getContactID(baseMsg.user_id, false);
+            users.setUser(baseMsg.user_id, {
+                nickname: baseMsg.sender.nickname
+            })
             messageDB.addMessage(cid, baseMsg.raw_message);
         } else if (baseMsg.message_type === MessageType.Group) {
             const cid = getContactID(
                 ((baseMsg as unknown) as GroupMessage).group_id,
                 true
             );
+            users.setUser(baseMsg.user_id, {
+                nickname: baseMsg.sender.nickname
+            })
             messageDB.addMessage(cid, baseMsg.raw_message, baseMsg.user_id);
         }
     });
 
     function connectHost() {
         if (connectUrl.length > 0) {
-            onebot.connect(connectUrl);
+            onebot.connect(ConnectMethod.WebSocket, connectUrl, connectUrlAuth.length > 0 ? connectUrlAuth : undefined);
             connected = true;
         }
     }
@@ -106,7 +115,7 @@
             style="height:calc(100%-56px)"
         >
             <Card style="width:400px;" class="ma-2">
-                <CardTitle>Connect to OneBot</CardTitle>
+                <CardTitle>{l('oneui.connect.title')}</CardTitle>
                 <Tabs bind:value={connectMethod} class="primary-text" fixedTabs>
                     <div slot="tabs">
                         <Tab>WebSocket</Tab>
@@ -116,24 +125,17 @@
                 <Window value={connectMethod}>
                     <WindowItem>
                         <CardText>
+                            <div class="mb-4">{l('oneui.connect.websocket.warning')}</div>
                             <TextField
-                                placeholder="Connect Url"
                                 bind:value={connectUrl}
-                            />
+                            >{l('oneui.connect.websocket.field.url')}</TextField>
                         </CardText>
                     </WindowItem>
                     <WindowItem>
                         <CardText>
-                            Still work in progress, it will connect as
-                            WebSocket.
-                            <TextField
-                                placeholder="Connect Url"
-                                bind:value={connectUrl}
-                            />
-                            <TextField
-                                placeholder="Serects"
-                                bind:value={connectUrlAuth}
-                            />
+                            <div class="mb-4">{l('oneui.connect.http.warning')}</div>
+                            <TextField class="mb-2" bind:value={connectHttpUrl}>Connect Url</TextField>
+                            <TextField bind:value={connectUrlAuth}>Serects</TextField>
                         </CardText>
                     </WindowItem>
                 </Window>
@@ -143,7 +145,7 @@
                         block
                         class="primary-text"
                         disabled={connectUrl.length === 0}
-                        on:click={connectHost}>Connect</Button
+                        on:click={connectHost}>{l('oneui.connect.button.text')}</Button
                     >
                 </CardActions>
             </Card>

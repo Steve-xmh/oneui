@@ -6,9 +6,7 @@ import { terser } from 'rollup-plugin-terser';
 import css from 'rollup-plugin-css-only';
 import typescript from '@rollup/plugin-typescript';
 import sveltePreprocess from 'svelte-preprocess';
-import { string } from "rollup-plugin-string";
-import ignore from "rollup-plugin-ignore";
-import { builtinModules } from "module";
+import webWorkerLoader from 'rollup-plugin-web-worker-loader';
 
 const production = !process.env.ROLLUP_WATCH;
 
@@ -35,20 +33,17 @@ function serve() {
 
 export default {
 	input: 'src/index.ts',
-	external: ['AMR'],
+	external: ['AMR', 'amr'],
 	output: {
 		sourcemap: true,
 		format: 'iife',
 		name: 'app',
 		file: 'public/build/bundle.js',
-		globals: {
-			'amr': 'AMR'
-		}
 	},
 	plugins: [
-		ignore(builtinModules, { commonjsBugFix: true }),
-		string({
-			include: '**/*.silk'
+		webWorkerLoader({
+			loadPath: 'build',
+			inline: false
 		}),
 		svelte({
 			preprocess: sveltePreprocess({
@@ -59,7 +54,8 @@ export default {
 			}),
 			compilerOptions: {
 				// enable run-time checks when not in production
-				dev: !production
+				dev: !production,
+				css: false
 			}
 		}),
 		// we'll extract any component CSS out into
