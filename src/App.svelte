@@ -19,7 +19,7 @@
         Tab,
         Window,
         WindowItem,
-    } from 'svelte-materialify/src';
+    } from 'svelte-materialify';
     import { mdiMenu } from '@mdi/js';
     import { ConnectMethod, onebot } from './onebot';
     import type { MessageMessage, GroupMessage } from './onebot/messages';
@@ -197,4 +197,7 @@ import { users } from './stores/users';
     <ImageViewer />
 </MaterialApp>
 
-<style lang="scss" src="./App.scss" global></style>
+<style lang="scss">
+    @import 'svelte-materialify/src/styles/tools/colors';
+    $primary-color: material-color('blue', 'base');
+</style>

@@ -7,6 +7,9 @@ import css from 'rollup-plugin-css-only';
 import typescript from '@rollup/plugin-typescript';
 import sveltePreprocess from 'svelte-preprocess';
 import webWorkerLoader from 'rollup-plugin-web-worker-loader';
+import { preprocess } from './svelte.config';
+import ignore from 'rollup-plugin-ignore';
+import { builtinModules } from "module";
 
 const production = !process.env.ROLLUP_WATCH;
 
@@ -33,33 +36,28 @@ function serve() {
 
 export default {
 	input: 'src/index.ts',
+	external: ['AMR'],
 	output: {
 		sourcemap: true,
 		format: 'iife',
-		name: 'app',
+		name: 'oneui',
 		file: 'public/build/bundle.js',
+		globals: {
+			'amr': 'AMR'
+		}
 	},
 	plugins: [
-		webWorkerLoader({
-			loadPath: 'build',
-			inline: false
-		}),
 		svelte({
-			preprocess: sveltePreprocess({
-				scss: {
-					includePaths: ['src/theme'],
-				},
-				typescript: true
-			}),
+			preprocess,
+			emitCss: false,
 			compilerOptions: {
-				// enable run-time checks when not in production
 				dev: !production
 			}
 		}),
+		ignore(builtinModules, { commonjsBugFix: true }),
 		// we'll extract any component CSS out into
 		// a separate file - better for performance
 		css({ output: 'bundle.css' }),
-
 		// If you have external dependencies installed from
 		// npm, you'll most likely need these plugins. In
 		// some cases you'll need additional configuration -
@@ -71,8 +69,12 @@ export default {
 		}),
 		commonjs(),
         typescript({
-			sourceMap: !production,
-			inlineSources: !production
+			sourceMap: true
+		}),
+
+		webWorkerLoader({
+			loadPath: 'build',
+			inline: false
 		}),
 
 		// In dev mode, call `npm run start` once

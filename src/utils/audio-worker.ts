@@ -19,7 +19,7 @@ SilkSDK.printErr = (a: string) => console.error('[OneUI-Audio]', a)
 function decodeAMR (data: Uint8Array) {
     SilkSDK.print('Decoding AMR audio')
     const startTime = Date.now()
-    const decoder = new self.AMR({})
+    const decoder = new (self as unknown as any).AMR({})
     const result = decoder.decode(data)
     decoder.close()
     SilkSDK.print(`Finished decoding AMR audio in ${Date.now() - startTime} ms`)
