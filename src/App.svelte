@@ -183,7 +183,7 @@ import { users } from './stores/users';
                 on:click={() => {
                     settingsActive = true;
                     active = false;
-                }}>Settings</ListItem
+                }}>{l('oneui.settings')}</ListItem
             >
         </List>
         <span slot="append" class="pa-2">

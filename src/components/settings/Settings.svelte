@@ -11,12 +11,13 @@
     import { Theme } from '../../stores/theme';
     import { settings } from '../../stores/settings';
     import { CQFaceType } from '../../stores/face';
+    import l from '../../i18n';
     export let active = false;
 </script>
 
 <Overlay {active}>
     <Card style="max-width:500px;">
-        <CardTitle>Settings</CardTitle>
+        <CardTitle>{l('oneui.settings')}</CardTitle>
         <CardText class="ml-4 mr-4">
             <div />
             <Switch
@@ -29,7 +30,7 @@
                             : Theme.Dark
                     )}
             >
-                Dark Mode
+                {l('oneui.settings.darkmode')}
             </Switch>
             <div />
             <Switch
@@ -37,7 +38,7 @@
                 on:change={() =>
                     settings.setSetting('markdown', !$settings.markdown)}
             >
-                Enable Markdown (Expermantal)
+            {l('oneui.settings.markdown')}
             </Switch>
             <div />
             <Switch
@@ -45,7 +46,7 @@
                 on:change={() =>
                     settings.setSetting('allRaw', !$settings.allRaw)}
             >
-                Show messages as raw message
+            {l('oneui.settings.rawmessage')}
             </Switch>
             <div />
             <Switch
@@ -58,7 +59,7 @@
                             : CQFaceType.Dynamic
                     )}
             >
-                Use dynamic face image
+            {l('oneui.settings.gifface')}
             </Switch>
             <Switch
                 checked={$settings.hideFaceOutline}
@@ -68,7 +69,7 @@
                         !$settings.hideFaceOutline
                     )}
             >
-                Use white background to hide dynamic face white outline
+            {l('oneui.settings.whitefacebackground')}
             </Switch>
         </CardText>
         <CardActions>

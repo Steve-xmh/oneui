@@ -5,11 +5,8 @@ import livereload from 'rollup-plugin-livereload';
 import { terser } from 'rollup-plugin-terser';
 import css from 'rollup-plugin-css-only';
 import typescript from '@rollup/plugin-typescript';
-import sveltePreprocess from 'svelte-preprocess';
 import webWorkerLoader from 'rollup-plugin-web-worker-loader';
 import { preprocess } from './svelte.config';
-import ignore from 'rollup-plugin-ignore';
-import { builtinModules } from "module";
 
 const production = !process.env.ROLLUP_WATCH;
 
@@ -54,7 +51,6 @@ export default {
 				dev: !production
 			}
 		}),
-		ignore(builtinModules, { commonjsBugFix: true }),
 		// we'll extract any component CSS out into
 		// a separate file - better for performance
 		css({ output: 'bundle.css' }),
@@ -69,7 +65,8 @@ export default {
 		}),
 		commonjs(),
         typescript({
-			sourceMap: true
+			sourceMap: true,
+			inlineSources: !production
 		}),
 
 		webWorkerLoader({
