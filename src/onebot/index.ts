@@ -1,3 +1,4 @@
+import axios, { AxiosInstance } from "axios";
 import genUid from "../utils/uid";
 import { BaseMessage, CQMessage, MessageMessage, PostType, SubMessageType } from "./messages";
 import type { OneBot } from "./types";
@@ -17,17 +18,47 @@ export class OneBotWS extends EventTarget {
 
     private connectMethod: ConnectMethod = ConnectMethod.WebSocket
     private ws?: WebSocket = undefined
-    private serect?: string = ''
+    private accessToken: string = ''
     private promises: { [key: string]: [Function, Function] } = {}
+    private host: string = '';
+    private postClient: AxiosInstance
 
     constructor() {
         super()
+        this.postClient = axios.create()
     }
 
-    connect(method: ConnectMethod, host: string, serect?: string) {
+    connect(method: ConnectMethod, host: string, accessToken = '') {
         if (this.connected) this.disconnect()
-        this.serect = serect
-        this.ws = new WebSocket(host)
+        this.accessToken = accessToken
+        this.connectMethod = method
+        this.host = host
+        if (method === ConnectMethod.WebSocket)
+            this.connectWebSocket()
+        else if (method === ConnectMethod.HttpPost)
+            this.setupHttpPost()
+    }
+
+    setupHttpPost() {
+        if (this.accessToken.length > 0)
+            this.postClient = axios.create({
+                headers: {
+                    authorization: 'Bearer ' + this.accessToken
+                }
+            })
+        else
+            this.postClient = axios.create({
+                withCredentials: true
+            })
+
+        this.sendAndEmit('get_login_info', 'getLoginInfo')
+        this.sendAndEmit('get_version_info', 'getVersionInfo')
+        this.sendAndEmit('get_friend_list', 'getFriendList')
+        this.sendAndEmit('get_group_list', 'getGroupList')
+    }
+
+    private connectWebSocket() {
+        this.ws = new WebSocket(this.host)
         this.registerEvents()
         this.ws.addEventListener('open', () => {
             this.connected = true
@@ -49,8 +80,19 @@ export class OneBotWS extends EventTarget {
 
         })
         this.ws.addEventListener('error', (evt) => {
-            
+
         })
+    }
+
+    private log(...args: any[]) {
+        switch (this.connectMethod) {
+            case ConnectMethod.HttpPost:
+                console.log('[OneBot HTTP POST]', ...args)
+                break
+            case ConnectMethod.WebSocket:
+                console.log('[OneBot WEBSOCKET]', ...args)
+                break
+        }
     }
 
     disconnect() {
@@ -63,7 +105,7 @@ export class OneBotWS extends EventTarget {
     }
 
     private parseMessage(data: OneBot.ActionResultStruct<any>) {
-        console.log('[OneBot WS]', data)
+        this.log(data)
         if (data.echo) {
             if (data.echo in this.promises) {
                 const [resolve, reject] = this.promises[data.echo]
@@ -108,18 +150,35 @@ export class OneBotWS extends EventTarget {
     }
 
     send<T = OneBot.Action>(action: T, data?: OneBot.BaseParam<T>): Promise<OneBot.ActionResultStruct<T>> {
-        return new Promise((resolve, reject) => {
-            if (!this.ws) return reject(new NoConnectedError())
-            const uid = genUid()
-            this.promises[uid] = [resolve, reject]
-            const msg = {
-                action,
-                params: data || [],
-                echo: uid
-            }
-            console.log('[OneBot WS]', 'Send', msg)
-            this.ws.send(JSON.stringify(msg))
-        })
+        if (this.connectMethod === ConnectMethod.WebSocket)
+            return new Promise((resolve, reject) => {
+                if (!this.ws) return reject(new NoConnectedError())
+                const uid = genUid()
+                this.promises[uid] = [resolve, reject]
+                const msg = {
+                    action,
+                    params: data || [],
+                    echo: uid
+                }
+                this.log('Send', msg)
+                this.ws.send(JSON.stringify(msg))
+            })
+        else if (this.connectMethod === ConnectMethod.HttpPost)
+            return (async () => {
+                this.log('Send', this.getMethodURL(action))
+                const result = await this.postClient.post(this.getMethodURL(action), data)
+                return result.data as OneBot.ActionResultStruct<T>
+            })()
+        else
+            throw new NoConnectedError()
+    }
+
+    private getMethodURL<T = OneBot.Action>(method: T): string {
+        if (this.host[this.host.length - 1] === '/') {
+            return this.host + method
+        } else {
+            return this.host + '/' + method
+        }
     }
 
     async sendPrivateMsg(userId: number, message: string, autoEscape = false) {

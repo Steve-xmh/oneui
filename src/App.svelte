@@ -88,7 +88,15 @@ import { users } from './stores/users';
 
     function connectHost() {
         if (connectUrl.length > 0) {
-            onebot.connect(ConnectMethod.WebSocket, connectUrl, connectUrlAuth.length > 0 ? connectUrlAuth : undefined);
+            const methods = [
+                ConnectMethod.WebSocket,
+                ConnectMethod.HttpPost
+            ]
+            const urls = [
+                connectUrl,
+                connectHttpUrl
+            ]
+            onebot.connect(methods[connectMethod], urls[connectMethod], connectUrlAuth.length > 0 ? connectUrlAuth : undefined);
             connected = true;
         }
     }
@@ -135,7 +143,7 @@ import { users } from './stores/users';
                         <CardText>
                             <div class="mb-4">{l('oneui.connect.http.warning')}</div>
                             <TextField class="mb-2" bind:value={connectHttpUrl}>Connect Url</TextField>
-                            <TextField bind:value={connectUrlAuth}>Serects</TextField>
+                            <TextField bind:value={connectUrlAuth}>Access Token</TextField>
                         </CardText>
                     </WindowItem>
                 </Window>
